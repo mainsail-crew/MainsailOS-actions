@@ -71,6 +71,7 @@ runs:
         
         echo $DOWNLOAD_URL_CHECKSUM
         echo $DOWNLOAD_URL_IMAGE
+        echo $MODULES
 
         echo "::set-output name=DOWNLOAD_URL_CHECKSUM::${DOWNLOAD_URL_CHECKSUM}"
         echo "::set-output name=DOWNLOAD_URL_IMAGE::${DOWNLOAD_URL_IMAGE}"
