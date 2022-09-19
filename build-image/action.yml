@@ -54,19 +54,19 @@ runs:
         GENERIC_FILE="./repository/config/default"
         if [[ -f "$GENERIC_FILE" ]]; then
           source "${GENERIC_FILE}"
-          cat "${GENERIC_FILE}" > ./repository/src/config
+          cat "${GENERIC_FILE}" >> ./repository/src/config
         fi
         
         TYPE_FILE="./repository/config/${TYPE}/default"
         if [[ -f "$TYPE_FILE" ]]; then
           source "${TYPE_FILE}"
-          cat "${TYPE_FILE}" > ./repository/src/config
+          cat "${TYPE_FILE}" >> ./repository/src/config
         fi
         
         SBC_FILE="./repository/config/${TYPE}/${SBC}"
         if [[ -f "$SBC_FILE" ]]; then
           source "${SBC_FILE}"
-          cat "${SBC_FILE}" > ./repository/src/config
+          cat "${SBC_FILE}" >> ./repository/src/config
         fi
         
         echo $DOWNLOAD_URL_CHECKSUM
