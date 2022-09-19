@@ -51,16 +51,22 @@ runs:
         echo "::set-output name=TYPE::${TYPE}"
         echo "::set-output name=SBC::${SBC}"
         
-        if test -f "./repository/config/default"; then
-          source ./repository/config/default
+        GENERIC_FILE="./repository/config/default"
+        if [[ -f "$GENERIC_FILE" ]]; then
+          source ${GENERIC_FILE}
+          cat ${GENERIC_FILE} > ./repository/src/config
         fi
         
-        if test -f "./repository/config/${TYPE}/default"; then
-          source ./repository/config/${TYPE}/default
+        TYPE_FILE="./repository/config/${TYPE}/default"
+        if [[ -f "$TYPE_FILE" ]]; then
+          source ${TYPE_FILE}
+          cat ${TYPE_FILE} > ./repository/src/config
         fi
         
-        if test -f "./repository/config/${TYPE}/${SBC}"; then
-          source ./repository/config/${TYPE}/${SBC}
+        SBC_FILE="./repository/config/${TYPE}/${SBC}"
+        if [[ -f "$SBC_FILE" ]]; then
+          source ${SBC_FILE}
+          cat ${SBC_FILE} > ./repository/src/config
         fi
         
         echo $DOWNLOAD_URL_CHECKSUM
