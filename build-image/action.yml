@@ -1,0 +1,168 @@
+name: 'MainsailOS/build'
+author: 'Stefan Dej'
+description: 'Build MainsailOS images'
+inputs:
+  config:
+    description: 'Board config name'
+    required: true
+  custompios-repository:
+    description: 'Repository for CustomPiOS'
+    required: false
+    default: 'guysoft/CustomPiOS'
+  custompios-ref:
+    description: 'Branch / Tag / SHA to checkout CustomPiOS'
+    required: false
+    default: 'devel'
+  release-id:
+    description: 'ID from github release'
+    required: false
+  github-token:
+    description: 'github token'
+    required: true
+
+runs:
+  using: 'composite'
+  steps:
+    - name: Install Dependencies
+      shell: bash
+      run: sudo apt update; sudo apt install --yes coreutils p7zip-full qemu-user-static zip
+
+    - name: Checkout CustomPiOS
+      uses: actions/checkout@v3
+      with:
+        repository: ${{ inputs.custompios-repository }}
+        ref: ${{ inputs.custompios-ref }}
+        path: CustomPiOS
+
+    - name: Checkout Repository
+      uses: actions/checkout@v3
+      with:
+        path: repository
+        submodules: true
+
+    - name: Read board config
+      id: config
+      shell: bash
+      run: |
+        IFS=', ' read -r -a array <<< "${{ inputs.config }}"
+        TYPE=${array[0]}
+        SBC=${array[1]}
+        
+        echo "::set-output name=TYPE::${TYPE}"
+        echo "::set-output name=SBC::${SBC}"
+        
+        if test -f "./repository/config/default"; then
+          source ./repository/config/default
+        fi
+        
+        if test -f "./repository/config/${TYPE}/default"; then
+          source ./repository/config/${TYPE}/default
+        fi
+        
+        if test -f "./repository/config/${TYPE}/${SBC}"; then
+          source ./repository/config/${TYPE}/${SBC}
+        fi
+        
+        echo $DOWNLOAD_URL_CHECKSUM
+        echo $DOWNLOAD_URL_IMAGE
+
+        echo "::set-output name=DOWNLOAD_URL_CHECKSUM::${DOWNLOAD_URL_CHECKSUM}"
+        echo "::set-output name=DOWNLOAD_URL_IMAGE::${DOWNLOAD_URL_IMAGE}"
+        echo "::set-output name=MODULES::${MODULES}"
+
+    - name: Base Image Checksum
+      id: checksum
+      shell: bash
+      run: |
+        cd repository/src/image
+        FILENAME=$(basename ${{ steps.config.outputs.DOWNLOAD_URL_CHECKSUM }})
+        wget -O ${FILENAME} ${{ steps.config.outputs.DOWNLOAD_URL_CHECKSUM }}
+        FILE_CONTENT=$(head -n 1 $FILENAME)
+        CHECKSUM=$(echo $FILE_CONTENT | cut -d' ' -f1)
+        echo "::set-output name=CHECKSUM::$CHECKSUM"
+        echo "::set-output name=FILENAME::$FILENAME"
+
+    - name: Cache Base Source Image
+      id: cache
+      uses: actions/cache@v3
+      with:
+        path: repository/src/image/*.img.xz
+        key: base-image-${{ steps.checksum.outputs.CHECKSUM }}
+
+    - name: Download Base Source Image via Torrent
+      if: steps.cache.outputs.cache-hit != 'true' && endswith(steps.config.outputs.DOWNLOAD_TORRENT, '.torrent')
+      shell: bash
+      run: aria2c -d repository/src/image --seed-time=0 ${{ steps.config.outputs.DOWNLOAD_URL_IMAGE }}
+
+    - name: Download Base Source Image via wget
+      if: steps.cache.outputs.cache-hit != 'true' && !endswith(steps.config.outputs.DOWNLOAD_TORRENT, '.torrent')
+      shell: bash
+      run: |
+        cd repository/src/image
+        wget ${{ steps.config.outputs.DOWNLOAD_URL_IMAGE }}
+
+    - name: Comparing Checksums
+      shell: bash
+      run: |
+        cd repository/src/image
+        sha256sum -b ${{ steps.checksum.outputs.FILENAME }}
+
+    - name: Copy config files
+      shell: bash
+      run: |
+        cd repository
+        cp ./default-config ./src/config
+        cd src
+        echo "export MODULES=\"${{ steps.config.outputs.MODULES }}\""  | tee -a config
+
+    - name: Update CustomPiOS Paths
+      shell: bash
+      run: cd repository/src && ../../CustomPiOS/src/update-custompios-paths
+
+#    - name: Build Image
+#      shell: bash
+#      run: sudo modprobe loop && cd repository/src && sudo bash -x ./build_dist
+
+#    - name: Copy output
+#      id: copy-image
+#      shell: bash
+#      run: |
+#        source repository/src/config
+#        NOW="$(date +"%Y-%m-%d")"
+#        IMAGE="${NOW}-${DIST_NAME}-${DIST_VERSION}-${{ steps.config.outputs.TYPE }}-${{ steps.config.outputs.SBC }}"
+#
+#        mv repository/src/workspace/*.img $IMAGE.img
+#
+#        echo "::set-output name=image::$IMAGE"
+
+#    - name: Compressing Image
+#      shell: bash
+#      run: xz -efkvz ${{ steps.copy-image.outputs.image }}.img
+
+#    - name: Calculating checksums
+#      shell: bash
+#      run: |
+#        sha256sum ${{ steps.copy-image.outputs.image }}.img > ${{ steps.copy-image.outputs.image }}.img.sha256
+#        sha256sum ${{ steps.copy-image.outputs.image }}.img.xz > ${{ steps.copy-image.outputs.image }}.img.xz.sha256
+
+#    - name: Upload Compressed Image
+#      if: github.event.inputs.release-id != ''
+#      uses: actions/upload-artifact@v3
+#      with:
+#        name: ${{ steps.copy-image.outputs.image }}.img.xz
+#        path: ${{ steps.copy-image.outputs.image }}.img.xz
+
+#    - name: Upload Compressed Image Checksum
+#      if: github.event.inputs.release-id != ''
+#      uses: actions/upload-artifact@v3
+#      with:
+#        name: ${{ steps.copy-image.outputs.image }}.img.xz.sha256
+#        path: ${{ steps.copy-image.outputs.image }}.img.xz.sha256
+
+#    - name: Upload Image Checksum
+#      if: github.event.inputs.release-id != ''
+#      uses: actions/upload-artifact@v3
+#      with:
+#        name: ${{ steps.copy-image.outputs.image }}.img.sha256
+#        path: ${{ steps.copy-image.outputs.image }}.img.sha256
+
