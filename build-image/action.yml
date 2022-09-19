@@ -117,50 +117,49 @@ runs:
       shell: bash
       run: cd repository/src && ../../CustomPiOS/src/update-custompios-paths
 
-#    - name: Build Image
-#      shell: bash
-#      run: sudo modprobe loop && cd repository/src && sudo bash -x ./build_dist
+    - name: Build Image
+      shell: bash
+      run: sudo modprobe loop && cd repository/src && sudo bash -x ./build_dist
 
-#    - name: Copy output
-#      id: copy-image
-#      shell: bash
-#      run: |
-#        source repository/src/config
-#        NOW="$(date +"%Y-%m-%d")"
-#        IMAGE="${NOW}-${DIST_NAME}-${DIST_VERSION}-${{ steps.config.outputs.TYPE }}-${{ steps.config.outputs.SBC }}"
-#
-#        mv repository/src/workspace/*.img $IMAGE.img
-#
-#        echo "::set-output name=image::$IMAGE"
+    - name: Copy output
+      id: copy-image
+      shell: bash
+      run: |
+        source repository/src/config
+        NOW="$(date +"%Y-%m-%d")"
+        IMAGE="${NOW}-${DIST_NAME}-${DIST_VERSION}-${{ steps.config.outputs.TYPE }}-${{ steps.config.outputs.SBC }}"
 
-#    - name: Compressing Image
-#      shell: bash
-#      run: xz -efkvz ${{ steps.copy-image.outputs.image }}.img
+        mv repository/src/workspace/*.img $IMAGE.img
 
-#    - name: Calculating checksums
-#      shell: bash
-#      run: |
-#        sha256sum ${{ steps.copy-image.outputs.image }}.img > ${{ steps.copy-image.outputs.image }}.img.sha256
-#        sha256sum ${{ steps.copy-image.outputs.image }}.img.xz > ${{ steps.copy-image.outputs.image }}.img.xz.sha256
+        echo "::set-output name=image::$IMAGE"
 
-#    - name: Upload Compressed Image
-#      if: github.event.inputs.release-id != ''
-#      uses: actions/upload-artifact@v3
-#      with:
-#        name: ${{ steps.copy-image.outputs.image }}.img.xz
-#        path: ${{ steps.copy-image.outputs.image }}.img.xz
+    - name: Compressing Image
+      shell: bash
+      run: xz -efkvz ${{ steps.copy-image.outputs.image }}.img
 
-#    - name: Upload Compressed Image Checksum
-#      if: github.event.inputs.release-id != ''
-#      uses: actions/upload-artifact@v3
-#      with:
-#        name: ${{ steps.copy-image.outputs.image }}.img.xz.sha256
-#        path: ${{ steps.copy-image.outputs.image }}.img.xz.sha256
+    - name: Calculating checksums
+      shell: bash
+      run: |
+        sha256sum ${{ steps.copy-image.outputs.image }}.img > ${{ steps.copy-image.outputs.image }}.img.sha256
+        sha256sum ${{ steps.copy-image.outputs.image }}.img.xz > ${{ steps.copy-image.outputs.image }}.img.xz.sha256
 
-#    - name: Upload Image Checksum
-#      if: github.event.inputs.release-id != ''
-#      uses: actions/upload-artifact@v3
-#      with:
-#        name: ${{ steps.copy-image.outputs.image }}.img.sha256
-#        path: ${{ steps.copy-image.outputs.image }}.img.sha256
+    - name: Upload Compressed Image
+      if: github.event.inputs.release-id != ''
+      uses: actions/upload-artifact@v3
+      with:
+        name: ${{ steps.copy-image.outputs.image }}.img.xz
+        path: ${{ steps.copy-image.outputs.image }}.img.xz
 
+    - name: Upload Compressed Image Checksum
+      if: github.event.inputs.release-id != ''
+      uses: actions/upload-artifact@v3
+      with:
+        name: ${{ steps.copy-image.outputs.image }}.img.xz.sha256
+        path: ${{ steps.copy-image.outputs.image }}.img.xz.sha256
+
+    - name: Upload Image Checksum
+      if: github.event.inputs.release-id != ''
+      uses: actions/upload-artifact@v3
+      with:
+        name: ${{ steps.copy-image.outputs.image }}.img.sha256
+        path: ${{ steps.copy-image.outputs.image }}.img.sha256
