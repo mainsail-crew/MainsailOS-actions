@@ -113,14 +113,6 @@ runs:
         cd repository/src/image
         sha256sum -b ${{ steps.checksum.outputs.FILENAME }}
 
-    - name: Copy config files
-      shell: bash
-      run: |
-        cd repository
-        cp ./default-config ./src/config
-        cd src
-        echo "export MODULES=\"${{ steps.config.outputs.MODULES }}\""  | tee -a config
-
     - name: Update CustomPiOS Paths
       shell: bash
       run: cd repository/src && ../../CustomPiOS/src/update-custompios-paths
