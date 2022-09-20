@@ -97,12 +97,12 @@ runs:
         key: base-image-${{ steps.checksum.outputs.CHECKSUM }}
 
     - name: Download Base Source Image via Torrent
-      if: steps.cache.outputs.cache-hit != 'true' && endswith(steps.config.outputs.DOWNLOAD_TORRENT, '.torrent')
+      if: steps.cache.outputs.cache-hit != 'true' && endswith(steps.config.outputs.DOWNLOAD_URL_IMAGE, '.torrent')
       shell: bash
       run: aria2c -d repository/src/image --seed-time=0 ${{ steps.config.outputs.DOWNLOAD_URL_IMAGE }}
 
     - name: Download Base Source Image via wget
-      if: steps.cache.outputs.cache-hit != 'true' && !endswith(steps.config.outputs.DOWNLOAD_TORRENT, '.torrent')
+      if: steps.cache.outputs.cache-hit != 'true' && !endswith(steps.config.outputs.DOWNLOAD_URL_IMAGE, '.torrent')
       shell: bash
       run: |
         cd repository/src/image
