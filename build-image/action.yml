@@ -130,7 +130,7 @@ runs:
         NOW="$(date +"%Y-%m-%d")"
         IMAGE="${NOW}-${DIST_NAME}-${DIST_VERSION}-${{ steps.config.outputs.TYPE }}-${{ steps.config.outputs.SBC }}"
 
-        mv repository/src/workspace/*.img $IMAGE.img
+        cp repository/src/workspace/*.img $IMAGE.img
 
         echo "::set-output name=image::$IMAGE"
 
