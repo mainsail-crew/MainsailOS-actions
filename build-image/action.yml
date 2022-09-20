@@ -145,21 +145,21 @@ runs:
         sha256sum ${{ steps.copy-image.outputs.image }}.img.xz > ${{ steps.copy-image.outputs.image }}.img.xz.sha256
 
     - name: Upload Compressed Image
-      if: github.event.inputs.release-id != ''
+      if: github.event.inputs.release-id == ''
       uses: actions/upload-artifact@v3
       with:
         name: ${{ steps.copy-image.outputs.image }}.img.xz
         path: ${{ steps.copy-image.outputs.image }}.img.xz
 
     - name: Upload Compressed Image Checksum
-      if: github.event.inputs.release-id != ''
+      if: github.event.inputs.release-id == ''
       uses: actions/upload-artifact@v3
       with:
         name: ${{ steps.copy-image.outputs.image }}.img.xz.sha256
         path: ${{ steps.copy-image.outputs.image }}.img.xz.sha256
 
     - name: Upload Image Checksum
-      if: github.event.inputs.release-id != ''
+      if: github.event.inputs.release-id == ''
       uses: actions/upload-artifact@v3
       with:
         name: ${{ steps.copy-image.outputs.image }}.img.sha256
