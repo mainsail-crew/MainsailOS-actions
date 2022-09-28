@@ -19,6 +19,13 @@ inputs:
   github-token:
     description: 'github token'
     required: true
+outputs:
+  type:
+    description: SBC type (raspberry/armbian/...)
+    value: ${{ steps.config.outputs.TYPE }}
+  sbc:
+    description: SBC model (rpi32/orangepi4lts/...)
+    value: ${{ steps.config.outputs.SBC }}
 
 runs:
   using: 'composite'
