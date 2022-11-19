@@ -55,8 +55,8 @@ runs:
         TYPE=${array[0]}
         SBC=${array[1]}
         
-        echo "::set-output name=TYPE::${TYPE}"
-        echo "::set-output name=SBC::${SBC}"
+        echo "TYPE=${TYPE}" >> $GITHUB_OUTPUT
+        echo "SBC=${SBC}" >> $GITHUB_OUTPUT
         
         GENERIC_FILE="./repository/config/default"
         if [[ -f "$GENERIC_FILE" ]]; then
@@ -79,10 +79,10 @@ runs:
         echo $DOWNLOAD_URL_IMAGE
         echo $MODULES
         echo $(cat ./repository/src/config)
-
-        echo "::set-output name=DOWNLOAD_URL_CHECKSUM::${DOWNLOAD_URL_CHECKSUM}"
-        echo "::set-output name=DOWNLOAD_URL_IMAGE::${DOWNLOAD_URL_IMAGE}"
-        echo "::set-output name=MODULES::${MODULES}"
+        
+        echo "DOWNLOAD_URL_CHECKSUM=${DOWNLOAD_URL_CHECKSUM}" >> $GITHUB_OUTPUT
+        echo "DOWNLOAD_URL_IMAGE=${DOWNLOAD_URL_IMAGE}" >> $GITHUB_OUTPUT
+        echo "MODULES=${MODULES}" >> $GITHUB_OUTPUT
 
     - name: Base Image Checksum
       id: checksum
@@ -93,8 +93,9 @@ runs:
         wget -O ${FILENAME} ${{ steps.config.outputs.DOWNLOAD_URL_CHECKSUM }}
         FILE_CONTENT=$(head -n 1 $FILENAME)
         CHECKSUM=$(echo $FILE_CONTENT | cut -d' ' -f1)
-        echo "::set-output name=CHECKSUM::$CHECKSUM"
-        echo "::set-output name=FILENAME::$FILENAME"
+        
+        echo "CHECKSUM=${CHECKSUM}" >> $GITHUB_OUTPUT
+        echo "FILENAME=${FILENAME}" >> $GITHUB_OUTPUT
 
     - name: Cache Base Source Image
       id: cache
