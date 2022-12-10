@@ -13,12 +13,6 @@ inputs:
     description: 'Branch / Tag / SHA to checkout CustomPiOS'
     required: false
     default: 'devel'
-  release-id:
-    description: 'ID from github release'
-    required: false
-  github-token:
-    description: 'github token'
-    required: true
 outputs:
   type:
     description: SBC type (raspberry/armbian/...)
