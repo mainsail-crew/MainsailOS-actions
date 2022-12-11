@@ -81,5 +81,6 @@ runs:
     - name: Create Dummy Image
       shell: bash
       run: |
+        mkdir ./repository/src/workspace
         touch ./repository/src/workspace/dummy.img
         echo "test" > ./repository/src/workspace/dummy.img
