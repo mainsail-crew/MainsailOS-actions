@@ -80,4 +80,6 @@ runs:
 
     - name: Create Dummy Image
       shell: bash
-      run: touch ./repository/src/workspace/dummy.img
+      run: |
+        touch ./repository/src/workspace/dummy.img
+        echo "test" > ./repository/src/workspace/dummy.img
